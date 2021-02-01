@@ -1,0 +1,4 @@
+/run/initialize
+/run/beamOn 4
+/det/setPos 50 50 50 mm
+/run/beamOn 4
