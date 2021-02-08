@@ -19,6 +19,9 @@
 
 #include <fstream>
 
+G4Material* spacerMat = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
+G4Material* frontPlateMat = G4NistManager::Instance()->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+
 G4ThreadLocal G4bool ConstructedSDandField = false;
 
 DetectorConstruction::DetectorConstruction() : G4VUserDetectorConstruction(),
@@ -35,7 +38,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
         return physWorld;
     constructed = true;
     Scnt = new G4Material("Cesium_iodide_scintillator",nist->FindOrBuildMaterial("G4_CESIUM_IODIDE")->GetDensity(),nist->FindOrBuildMaterial("G4_CESIUM_IODIDE"));
-    G4Material* spacerMat = nist->FindOrBuildMaterial("G4_Al");
+    //G4Material* spacerMat = nist->FindOrBuildMaterial("G4_Al");
 
     G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
 
@@ -110,13 +113,31 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 
     detector = new G4Box("Detector",0.5*det_X,0.5*det_YZ,0.5*det_YZ);
-    G4Box* spacerBox = new G4Box("Spacer",0.5*det_X,ndet_Yhalf*(det_YZ+spacer_width)+0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)+0.5*spacer_width);
+    // Even though it is 'front plate' all non x sides will be surronded by this.
+    #if !NEW_SETUP
+    G4Box* frontPlateBox = new G4Box("FrontPlate",0.5*det_X,ndet_Yhalf*(det_YZ+spacer_width)-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width + frontPlate_width);
+    G4Box* spacerBox = new G4Box("Spacer",0.5*det_X,ndet_Yhalf*(det_YZ+spacer_width)-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width);
+    #else
+    float xy_halfwidth = 0.5*det_X >= ndet_Yhalf*(det_YZ+spacer_width) ? 0.5*det_X : ndet_Yhalf*(det_YZ+spacer_width);
+    G4Box* frontPlateBox = new G4Box("FrontPlate",xy_halfwidth-0.5*spacer_width,xy_halfwidth-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width+frontPlate_width);
+    G4Box* spacerBox = new G4Box("Spacer",xy_halfwidth-0.5*spacer_width,xy_halfwidth-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width);
+    #endif
+    logicalFrontPlate = new G4LogicalVolume(frontPlateBox,frontPlateMat,"FrontPlate");
     logicalSpacer = new G4LogicalVolume(spacerBox,spacerMat,"Spacer");
+    // Add the placements
+    physFrontPlate = new G4PVPlacement(0
+                                      ,G4ThreeVector(0*m,0,0)
+                                      ,logicalFrontPlate
+                                      ,"FrontPlate"
+                                      ,logicWorld
+                                      ,false
+                                      ,0
+                                      ,check_overlap);
     physSpacer = new G4PVPlacement(0
                                   ,G4ThreeVector(0*m,0,0)
                                   ,logicalSpacer
                                   ,"Spacer"
-                                  ,logicWorld
+                                  ,logicalFrontPlate
                                   ,false
                                   ,0
                                   ,check_overlap);
@@ -131,6 +152,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
             name += std::to_string(f);
             logicDetectors[i][f] = new G4LogicalVolume(detector, Scnt, name);
             logicDetectors[i][f]->SetVisAttributes(crystalAttr);
+            #if !NEW_SETUP
             physDetectors[i][f] = new G4PVPlacement(0
                                                    ,G4ThreeVector(0,(i-(ndet_Yhalf-0.5))*(det_YZ+spacer_width),(f-(ndet_Zhalf-0.5))*(det_YZ+spacer_width))
                                                    ,logicDetectors[i][f]
@@ -139,6 +161,28 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                                                    ,false
                                                    ,0
                                                    ,check_overlap);
+            #else
+            if(f%2 == 0)
+                physDetectors[i][f] = new G4PVPlacement(0
+                                                       ,G4ThreeVector(0,(i-(ndet_Yhalf-0.5))*(det_YZ+spacer_width),(f-(ndet_Zhalf-0.5))*(det_YZ+spacer_width))
+                                                       ,logicDetectors[i][f]
+                                                       ,name
+                                                       ,logicalSpacer
+                                                       ,false
+                                                       ,0
+                                                       ,check_overlap);
+            else
+                // Switch around the coordinate displacements (x <-> y) and
+                // rotate the crystal 90 degrees along the z axis
+                physDetectors[i][f] = new G4PVPlacement(new G4RotationMatrix(0,0,90*deg)
+                                                       ,G4ThreeVector((i-(ndet_Yhalf-0.5))*(det_YZ+spacer_width),0,(f-(ndet_Zhalf-0.5))*(det_YZ+spacer_width))
+                                                       ,logicDetectors[i][f]
+                                                       ,name
+                                                       ,logicalSpacer
+                                                       ,false
+                                                       ,0
+                                                       ,check_overlap);
+            #endif
             name += "_Surface";
             scintSurfaces[i][f] = new G4OpticalSurface(name);
             scintSurfaces[i][f]->SetType(dielectric_metal);

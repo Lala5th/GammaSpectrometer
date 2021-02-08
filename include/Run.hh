@@ -26,7 +26,7 @@ class Run : public G4Run{
     private:
         G4THitsMap<G4double> fMapSum[ndet_Y][ndet_Z][2];
         G4int fColID[ndet_Y][ndet_Z][2];
-        std::vector<G4THitsMap<G4double>(*)[ndet_Y][2]> eventMaps;
+        std::vector<G4THitsMap<G4double>(*)[ndet_Z][2]> eventMaps;
         std::mutex evtMutex;
 
 };

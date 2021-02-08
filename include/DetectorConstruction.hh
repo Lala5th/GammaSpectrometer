@@ -30,9 +30,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
         G4Material* Scnt;
         G4LogicalVolume* logicWorld;
         G4LogicalVolume* logicalSpacer;
+        G4LogicalVolume* logicalFrontPlate;
         G4LogicalVolume* logicDetectors[ndet_Y][ndet_Z];
         G4VPhysicalVolume* physWorld;
         G4VPhysicalVolume* physSpacer;
+        G4VPhysicalVolume* physFrontPlate;
         G4VPhysicalVolume* physDetectors[ndet_Y][ndet_Z];
         G4OpticalSurface* scintSurfaces[ndet_Y][ndet_Z];
         DetectorMessenger* messenger;
