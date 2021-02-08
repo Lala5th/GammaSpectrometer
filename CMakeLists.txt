@@ -23,6 +23,14 @@ endif(VERBOSE)
 file(GLOB sources ./src/*.cc)
 file(GLOB headers ./include/*.hh)
 
+add_custom_command ( OUTPUT autogen.mac
+                     COMMAND ${PROJECT_SOURCE_DIR}/autogen.py
+                     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/
+                     DEPENDS ${PROJECT_SOURCE_DIR}/autogen.py)
+
+add_custom_target( genMac ALL DEPENDS autogen.mac)
+
+
 set(SCRIPTS
   init_vis.mac
   vis.mac
