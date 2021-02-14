@@ -1,5 +1,5 @@
-#ifndef SteppingAction_HH
-#define SteppingAction_HH
+#ifndef StackingAction_HH
+#define StackingAction_HH
 
 #include "G4UserStackingAction.hh"
 #include "globals.hh"

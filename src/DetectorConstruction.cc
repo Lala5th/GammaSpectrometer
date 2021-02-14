@@ -90,7 +90,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     emission_coeff.data(), emission_coeff.size())->SetSpline(true);
     Scnt_MPT->AddProperty("SLOWCOMPONENT", emission_energy.data(),
     emission_coeff.data(), emission_coeff.size())->SetSpline(true);
-    Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD",54000.00 / MeV);
+    Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD",54.00 / MeV); // 1000x less
     Scnt_MPT->AddConstProperty("RESOLUTIONSCALE",1.0);
     Scnt_MPT->AddConstProperty("FASTTIMECONSTANT", 1.*ns);
     Scnt_MPT->AddConstProperty("SLOWTIMECONSTANT",10.*ns);
@@ -111,17 +111,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                                  ,0
                                  ,check_overlap);
 
-
     detector = new G4Box("Detector",0.5*det_X,0.5*det_YZ,0.5*det_YZ);
     // Even though it is 'front plate' all non x sides will be surronded by this.
-    #if !NEW_SETUP
-    G4Box* frontPlateBox = new G4Box("FrontPlate",0.5*det_X,ndet_Yhalf*(det_YZ+spacer_width)-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width + frontPlate_width);
-    G4Box* spacerBox = new G4Box("Spacer",0.5*det_X,ndet_Yhalf*(det_YZ+spacer_width)-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width);
-    #else
-    float xy_halfwidth = 0.5*det_X >= ndet_Yhalf*(det_YZ+spacer_width) ? 0.5*det_X : ndet_Yhalf*(det_YZ+spacer_width);
-    G4Box* frontPlateBox = new G4Box("FrontPlate",xy_halfwidth-0.5*spacer_width,xy_halfwidth-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width+frontPlate_width);
-    G4Box* spacerBox = new G4Box("Spacer",xy_halfwidth-0.5*spacer_width,xy_halfwidth-0.5*spacer_width,ndet_Zhalf*(det_YZ+spacer_width)-0.5*spacer_width);
-    #endif
+    G4Box* frontPlateBox = new G4Box("FrontPlate",0.5*det_X,ndet_Yhalf*(det_YZ + spacer_width)*root2 + root2*(det_YZ + spacer_width)/4 - 0.5*spacer_width,(ndet_Zhalf+0.5)*(det_YZ + spacer_width)*0.5*root2 - 0.5*root2*spacer_width + frontPlate_width);
+    G4Box* spacerBox = new G4Box("SpacerBox",0.5*det_X,ndet_Yhalf*(det_YZ + spacer_width)*root2 + root2*(det_YZ + spacer_width)/4 - 0.5*spacer_width,(ndet_Zhalf+0.5)*(det_YZ + spacer_width)*0.5*root2 - 0.5*root2*spacer_width);
     logicalFrontPlate = new G4LogicalVolume(frontPlateBox,frontPlateMat,"FrontPlate");
     logicalSpacer = new G4LogicalVolume(spacerBox,spacerMat,"Spacer");
     // Add the placements
@@ -144,6 +137,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     G4String name;
     G4VisAttributes* crystalAttr = new G4VisAttributes();
     crystalAttr->SetColour(0.2,0.5,0.8,0.25);
+    G4double offset = 0;
     for(int i = 0; i < ndet_Y; i++){
         for(int f = 0; f < ndet_Z; f++){
             name = "Detector_";
@@ -152,37 +146,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
             name += std::to_string(f);
             logicDetectors[i][f] = new G4LogicalVolume(detector, Scnt, name);
             logicDetectors[i][f]->SetVisAttributes(crystalAttr);
-            #if !NEW_SETUP
-            physDetectors[i][f] = new G4PVPlacement(0
-                                                   ,G4ThreeVector(0,(i-(ndet_Yhalf-0.5))*(det_YZ+spacer_width),(f-(ndet_Zhalf-0.5))*(det_YZ+spacer_width))
+            if (f % 2)
+                offset = -root2*(det_YZ + spacer_width)/4;
+            else
+                offset = root2*(det_YZ + spacer_width)/4;
+            physDetectors[i][f] = new G4PVPlacement(new G4RotationMatrix(0,45*deg,0)
+                                                   ,G4ThreeVector(0,root2*(i-(ndet_Yhalf-0.5))*(det_YZ+spacer_width) + offset,(f-(ndet_Zhalf-0.5))*0.5*root2*(det_YZ+spacer_width))
                                                    ,logicDetectors[i][f]
                                                    ,name
                                                    ,logicalSpacer
                                                    ,false
                                                    ,0
                                                    ,check_overlap);
-            #else
-            if(f%2 == 0)
-                physDetectors[i][f] = new G4PVPlacement(0
-                                                       ,G4ThreeVector(0,(i-(ndet_Yhalf-0.5))*(det_YZ+spacer_width),(f-(ndet_Zhalf-0.5))*(det_YZ+spacer_width))
-                                                       ,logicDetectors[i][f]
-                                                       ,name
-                                                       ,logicalSpacer
-                                                       ,false
-                                                       ,0
-                                                       ,check_overlap);
-            else
-                // Switch around the coordinate displacements (x <-> y) and
-                // rotate the crystal 90 degrees along the z axis
-                physDetectors[i][f] = new G4PVPlacement(new G4RotationMatrix(0,0,90*deg)
-                                                       ,G4ThreeVector((i-(ndet_Yhalf-0.5))*(det_YZ+spacer_width),0,(f-(ndet_Zhalf-0.5))*(det_YZ+spacer_width))
-                                                       ,logicDetectors[i][f]
-                                                       ,name
-                                                       ,logicalSpacer
-                                                       ,false
-                                                       ,0
-                                                       ,check_overlap);
-            #endif
             name += "_Surface";
             scintSurfaces[i][f] = new G4OpticalSurface(name);
             scintSurfaces[i][f]->SetType(dielectric_metal);

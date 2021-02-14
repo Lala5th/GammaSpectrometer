@@ -114,6 +114,7 @@
 #
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
+/vis/geometry/set/colour CullingWorld 0.5 0.1 0.1 0.25
 /vis/geometry/set/colour Spacer 0.5 0.5 0.5 0.25
 /vis/geometry/set/colour FrontPlate 0.75 0.75 0.75 0.25
 /vis/set/colour

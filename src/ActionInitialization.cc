@@ -4,12 +4,14 @@
 #include "RunAction.hh"
 #include "EventAction.hh"
 #include "StackingAction.hh"
+#include "SteppingAction.hh"
 
 void ActionInitialization::Build() const {
-  SetUserAction(new PrimaryGeneratorAction);
-  SetUserAction(new RunAction);
-  SetUserAction(new EventAction);
-  SetUserAction(new StackingAction);
+    SetUserAction(new PrimaryGeneratorAction);
+    SetUserAction(new RunAction);
+    SetUserAction(new EventAction);
+    SetUserAction(new StackingAction);
+    SetUserAction(new SteppingAction);
 }
 
 void ActionInitialization::BuildForMaster() const{
