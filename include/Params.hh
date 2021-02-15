@@ -18,6 +18,6 @@ const G4double world_X = det_X;
 const G4double world_Y = ndet_Y*(det_YZ + spacer_width)*root2; //4.5*m;
 const G4double world_Z = 4.5*m;
 
-const G4int pNum = 100;
+const G4int pNum = 5000;
 
 #endif
