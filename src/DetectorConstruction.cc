@@ -90,7 +90,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     emission_coeff.data(), emission_coeff.size())->SetSpline(true);
     Scnt_MPT->AddProperty("SLOWCOMPONENT", emission_energy.data(),
     emission_coeff.data(), emission_coeff.size())->SetSpline(true);
-    Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD",54000.00 / MeV);
+    Scnt_MPT->AddConstProperty("SCINTILLATIONYIELD",54.00 / MeV); // 1000x less
     Scnt_MPT->AddConstProperty("RESOLUTIONSCALE",1.0);
     Scnt_MPT->AddConstProperty("FASTTIMECONSTANT", 1.*ns);
     Scnt_MPT->AddConstProperty("SLOWTIMECONSTANT",10.*ns);
