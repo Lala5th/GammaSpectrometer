@@ -123,7 +123,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     logicalFrontPlate = new G4LogicalVolume((G4VSolid*)frontPlateSolid,frontPlateMat,"FrontPlate");
     logicalSpacer = new G4LogicalVolume((G4VSolid*)spacerSolid,spacerMat,"Spacer");
     // Add the placements
-    physFrontPlate = new G4PVPlacement(new G4RotationMatrix(0,45*deg,0)
+    physFrontPlate = new G4PVPlacement(0
                                       ,G4ThreeVector(0*m,0,0)
                                       ,logicalFrontPlate
                                       ,"FrontPlate"
