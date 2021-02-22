@@ -7,7 +7,14 @@
 #include "Randomize.hh"
 #include "G4PhysicalConstants.hh"
 
+#include <functional>
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Params.hh"
+#include "NumpyAnalysisManager.hh"
+
+#define C_ECrit 150*MeV
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(const G4String& particleName,
                                                G4double energy,
@@ -30,18 +37,32 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction(){
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
-    for(int i = 0; i < pNum; i++){
-        //G4double phi = G4UniformRand()*360;
-        //G4double theta = (G4UniformRand() - 0.5)*0.003;
-        G4ThreeVector direction = G4ThreeVector(0,0,1);
-        //direction.rotateY(theta*rad);
-        //direction.rotateX(phi*deg);
-        //phi = G4UniformRand()*360;
-        //G4double offset = G4UniformRand()*1;
-        //G4ThreeVector randOffset = G4ThreeVector(0,0,offset);
-        //randOffset.rotateX(phi*deg);
-        fParticleGun->SetParticlePosition((*initPos));
-        fParticleGun->SetParticleMomentumDirection(direction);
+
+    NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
+
+    std::function<double(double)> func = [](double E){
+        return pow(M_E,-E/C_ECrit)*cbrt(pow(E,-2)); // Why can't pow hande fractional powers?!?!
+    };
+
+    G4ThreeVector direction = G4ThreeVector(0,0,1);
+    fParticleGun->SetParticlePosition((*initPos));
+    fParticleGun->SetParticleMomentumDirection(direction);
+
+    G4double E;
+    G4double y;
+    double func_val;
+    G4int generatedParticles = 0;
+    do{
+        do{
+            E = G4UniformRand()*2000*MeV;
+            y = G4UniformRand();
+            func_val = func(E);
+        }while(y >=func_val);
+
+        fParticleGun->SetParticleEnergy(E);
+        man->AddData<float>(3,E);
         fParticleGun->GeneratePrimaryVertex(anEvent);
-    }
+        generatedParticles++;
+
+    }while(generatedParticles < pNum);
 }

@@ -26,12 +26,7 @@ RunAction::~RunAction(){}
 
 G4Run* RunAction::GenerateRun(){ return new Run; }
 
-void RunAction::BeginOfRunAction(const G4Run*){
-    if(IsMaster()){
-        NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
-        man->AddData<float>(3,((const G4ParticleGun*)particleSource)->GetParticleEnergy());
-    }
-}
+void RunAction::BeginOfRunAction(const G4Run*){}
 
 void RunAction::EndOfRunAction(const G4Run* aRun){
     if(IsMaster()){
