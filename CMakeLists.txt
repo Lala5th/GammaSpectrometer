@@ -37,6 +37,7 @@ set(SCRIPTS
   timeout
   run1.mac
   run2.mac
+  energy.mac
   )
 
 foreach(_script ${SCRIPTS})
