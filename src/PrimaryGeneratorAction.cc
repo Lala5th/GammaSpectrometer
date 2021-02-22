@@ -41,7 +41,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
 
     std::function<double(double)> func = [](double E){
-        return pow(M_E,-E/C_ECrit)*cbrt(pow(E,-2)); // Why can't pow hande fractional powers?!?!
+        return pow(M_E,-E/C_ECrit)*pow(E,((double) -2)/3); // Why can't pow hande fractional powers?!?!
     };
 
     G4ThreeVector direction = G4ThreeVector(0,0,1);
