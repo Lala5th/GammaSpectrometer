@@ -22,6 +22,7 @@ const G4int ndet_Y = 10;
 const G4int ndet_Z = 70;
 #endif
 
-const G4int pNum = 1000;
+const G4int pNum = 10000;
+const G4int targetPNum = 10000;
 
 #endif

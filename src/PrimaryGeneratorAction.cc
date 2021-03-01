@@ -14,8 +14,6 @@
 #include "Params.hh"
 #include "NumpyAnalysisManager.hh"
 
-#define C_ECrit 150*MeV
-
 PrimaryGeneratorAction::PrimaryGeneratorAction(const G4String& particleName,
                                                G4double energy,
                                                G4ThreeVector position,
@@ -39,9 +37,10 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction(){
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
 
     NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
+    double ECrit = fParticleGun->GetParticleEnergy();
 
-    std::function<double(double)> func = [](double E){
-        return pow(M_E,-E/C_ECrit)*pow(E,((double) -2)/3); // Why can't pow hande fractional powers?!?!
+    std::function<double(double)> func = [ECrit](double E){
+        return pow(M_E,-E/ECrit)*pow(E,((double) -2)/3);
     };
 
     G4ThreeVector direction = G4ThreeVector(0,0,1);
@@ -54,13 +53,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     G4int generatedParticles = 0;
     do{
         do{
-            E = G4UniformRand()*2000*MeV;
+            E = G4UniformRand()*1000*MeV;
             y = G4UniformRand();
             func_val = func(E);
         }while(y >=func_val);
 
         fParticleGun->SetParticleEnergy(E);
-        man->AddData<float>(3,E);
+        man->AddData<int,double>(3,generatedParticles,E);
         fParticleGun->GeneratePrimaryVertex(anEvent);
         generatedParticles++;
 
