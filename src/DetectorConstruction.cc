@@ -19,8 +19,8 @@
 
 #include <fstream>
 
-G4Material* spacerMat = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
-G4Material* frontPlateMat = G4NistManager::Instance()->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+G4Material* spacerMat = G4NistManager::Instance()->FindOrBuildMaterial("G4_NYLON-6-6");
+G4Material* frontPlateMat = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
 
 G4ThreadLocal G4bool ConstructedSDandField = false;
 
