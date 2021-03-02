@@ -24,6 +24,6 @@ while(E < 1000):
 
 for E in Es:
     file.write(f"/gun/energy {E} MeV\n")
-    file.write("/run/beamOn 8\n")
+    file.write("/run/beamOn 100\n")
 
 file.close()

@@ -35,7 +35,6 @@ void RunAction::BeginOfRunAction(const G4Run*){
 
 void RunAction::EndOfRunAction(const G4Run* aRun){
     if(IsMaster()){
-        NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
         Run* run = (Run*) aRun;
         G4double eventN = (G4double) run->GetNumberOfEvent();
         G4cout << "######################################################################" << G4endl;
@@ -53,7 +52,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun){
                 name += "|";
                 name += std::to_string(f);
                 //G4Region* detector = G4RegionStore::GetInstance()->GetRegion(name);
-                man->AddData<int,float>(2,RunAction::ID,run->GetTotalE(i, f)/(eventN*pNum));
                 #ifdef VERBOSE
                 G4cout << name << "\t" << G4BestUnit(run->GetTotalE(i,f),"Energy") << "\t" << run->GetTotalNGamma(i, f) << G4endl;
                 #endif

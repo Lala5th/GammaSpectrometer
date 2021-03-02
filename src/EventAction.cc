@@ -8,6 +8,8 @@
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 
+#include "NumpyAnalysisManager.hh"
+
 EventAction::EventAction() : G4UserEventAction(){}
 
 EventAction::~EventAction(){}
@@ -34,14 +36,26 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 void EventAction::RecordEvent(const G4Event* event){
     G4HCofThisEvent* HCE = event->GetHCofThisEvent();
-    if(!HCE) return;
+    NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
+    //G4cout << "EventID: " << event->GetEventID() << G4endl;
+    if(!HCE){
+        for(G4int i = 0; i < ndet_Y; i++)
+            for(G4int f = 0; f < ndet_Z; f++)
+                man->AddData<int,float>(2,event->GetEventID(),0.);
+        return;
+    }
+    G4double tot = 0.;
     for(G4int i = 0; i < ndet_Y; i++){
         for(G4int f = 0; f < ndet_Z; f++){
+            tot = 0;
             for(G4int k = 0; k < 2; k++){
                 G4THitsMap<G4double>* evtMap = (G4THitsMap<G4double>*)(HCE->GetHC(fColID[i][f][k]));
                 fMapSum[i][f][k] += *evtMap;
-
             }
+            std::map<G4int,G4double*>::iterator itr = fMapSum[i][f][0].GetMap()->begin();
+            for(; itr != fMapSum[i][f][0].GetMap()->end(); itr++)
+            { tot += *(itr->second); }
+            man->AddData<int,float>(2,event->GetEventID(),tot);
         }
     }
     Run* run = static_cast<Run*>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
