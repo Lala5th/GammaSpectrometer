@@ -66,6 +66,15 @@ G4double Run::GetTotal(const G4THitsMap<G4double> &map){
     return tot;
 }
 
+G4double Run::GetTotalStd(const G4THitsMap<G4double> &map,G4double mean, G4int EvtNum){
+    G4double tot = 0.;
+    if(map.GetSize()==0) return tot;
+    std::map<G4int,G4double*>::iterator itr = map.GetMap()->begin();
+    for(; itr != map.GetMap()->end(); itr++)
+    { tot += pow(*(itr->second),2); }
+    return tot/EvtNum - pow(mean,2);
+}
+
 void Run::pushEventBack(G4THitsMap<G4double> eventMap[ndet_Y][ndet_Z][2]){
     evtMutex.lock();
     eventMaps.push_back(eventMap);

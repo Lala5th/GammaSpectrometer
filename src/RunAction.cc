@@ -44,9 +44,13 @@ void RunAction::EndOfRunAction(const G4Run* aRun){
         #ifdef VERBOSE
         G4cout << "Name\t\tEdep\t\tnGamma" << G4endl;
         #endif
+        G4double mean;
         std::vector<G4THitsMap<G4double>(*)[ndet_Z][2]> eventMaps = run->dumpEventData();
         for(G4int i = 0; i < ndet_Y; i++){
             for(G4int f = 0; f < ndet_Z; f++){
+                mean = run->GetTotalE(i,f)/eventN;
+                NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
+                man->AddData<int,double>(2, run->GetRunID(),run->GetStdE(i, f, mean, eventN)/(pNum*pNum)); // Variance !
                 name = "Detector_";
                 name += std::to_string(i);
                 name += "|";

@@ -37,7 +37,7 @@ int main(int argc, char *argv[]){
     NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
     man->CreateDataset<int>("y"); // ID:0
     man->CreateDataset<int>("z"); // 1
-    man->CreateDataset<int,float>("DepositedEnergy"); // 2
+    man->CreateDataset<int,double>("DepositedEnergy"); // 2
     man->CreateDataset<float>("InitialEnergy"); // 3
 
     // Create Y-Z map
