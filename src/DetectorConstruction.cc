@@ -96,6 +96,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     Scnt_MPT->AddConstProperty("SLOWTIMECONSTANT",10.*ns);
     Scnt_MPT->AddConstProperty("YIELDRATIO",1.0);
     Scnt->SetMaterialPropertiesTable(Scnt_MPT);
+    Scnt->GetIonisation()->SetBirksConstant(100000000*mm/MeV);
 
     G4double ndet_Yhalf = (((G4double)ndet_Y)/2);
     G4double ndet_Zhalf = (((G4double)ndet_Z)/2);
@@ -206,7 +207,7 @@ void DetectorConstruction::ConstructSDandField(){
             name += "|";
             name += std::to_string(f);
 
-            G4SDParticleFilter* gammaFilter = new G4SDParticleFilter("gammaFilter","gamma");
+            G4SDParticleFilter* gammaFilter = new G4SDParticleFilter("gammaFilter","opticalphoton");
             G4VPrimitiveScorer* scorer;
             G4MultiFunctionalDetector* det = new G4MultiFunctionalDetector(name);
 

@@ -9,8 +9,8 @@ StackingAction::StackingAction(){}
 StackingAction::~StackingAction(){}
 
 
-G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* track){
+G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* /*track*/){
 
-	if (track->GetDefinition() == G4OpticalPhoton::Definition()) return fKill;
+	//if (track->GetDefinition() == G4OpticalPhoton::Definition()) return fKill;
 	return fUrgent;
 }
