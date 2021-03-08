@@ -50,7 +50,7 @@ void RunAction::EndOfRunAction(const G4Run* aRun){
             for(G4int f = 0; f < ndet_Z; f++){
                 mean = run->GetTotalE(i,f)/eventN;
                 NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
-                man->AddData<int,double>(2, run->GetRunID(),run->GetStdE(i, f, mean, eventN)/(pNum*pNum)); // Variance !
+                man->AddData<int,double>(2, run->GetRunID(),run->GetStdE(i, f, mean, eventN)/(pNum)); // Variance !
                 name = "Detector_";
                 name += std::to_string(i);
                 name += "|";
