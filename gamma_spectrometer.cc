@@ -40,6 +40,7 @@ int main(int argc, char *argv[]){
     man->CreateDataset<int,float>("DepositedEnergy"); // 2
     man->CreateDataset<int,double>("Energy"); // 3
     man->CreateDataset<double>("ECrit"); // 4
+    man->CreateDataset<uint>("GeneratedParticles"); // 5
 
     // Create Y-Z map
     for(int i = 0; i < ndet_Y; i++)

@@ -47,10 +47,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     fParticleGun->SetParticlePosition((*initPos));
     fParticleGun->SetParticleMomentumDirection(direction);
 
+    uint toBeGenerated = pNum + 2*(G4UniformRand() - 0.5)*pErr;
+    man->AddData<uint>(5, toBeGenerated);
+
     G4double E;
     G4double y;
     double func_val;
-    G4int generatedParticles = 0;
+    uint generatedParticles = 0;
     do{
         do{
             E = G4UniformRand()*1000*MeV;
@@ -63,5 +66,5 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
         fParticleGun->GeneratePrimaryVertex(anEvent);
         generatedParticles++;
 
-    }while(generatedParticles < pNum);
+    }while(generatedParticles < toBeGenerated);
 }
