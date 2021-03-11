@@ -10,9 +10,11 @@
 #include <functional>
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <random>
 
 #include "Params.hh"
 #include "NumpyAnalysisManager.hh"
+#include "GeneratorMessenger.hh"
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(const G4String& particleName,
                                                G4double energy,
@@ -28,19 +30,24 @@ PrimaryGeneratorAction::PrimaryGeneratorAction(const G4String& particleName,
     //fParticleGun->SetParticlePosition(position);
     fParticleGun->SetParticleMomentumDirection(momentumDirection);
     initPos = new G4ThreeVector(position);
+    genMessenger = new GeneratorMessenger(this);
 }
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction(){
     delete fParticleGun;
+    delete genMessenger;
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
 
     NumpyAnalysisManager* man = NumpyAnalysisManager::GetInstance();
     double ECrit = fParticleGun->GetParticleEnergy();
+    std::mt19937_64 randGen = std::mt19937_64();
+    std::normal_distribution<double> dist(0,this->std);
+    man->AddData<double,double>(5,this->std,this->expCorr);
 
-    std::function<double(double)> func = [ECrit](double E){
-        return pow(M_E,-E/ECrit)*pow(E,((double) -2)/3);
+    std::function<double(double)> func = [this,ECrit](double E){
+        return pow(M_E,-E/ECrit)*pow(E,((double) -2)/3 + this->expCorr);
     };
 
     G4ThreeVector direction = G4ThreeVector(0,0,1);
@@ -57,6 +64,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
             y = G4UniformRand();
             func_val = func(E);
         }while(y >=func_val);
+        E += dist(randGen);
+        if(E <= 0)
+            continue;
 
         fParticleGun->SetParticleEnergy(E);
         man->AddData<int,double>(3,generatedParticles,E);

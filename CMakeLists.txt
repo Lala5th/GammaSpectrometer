@@ -38,6 +38,7 @@ set(SCRIPTS
   run1.mac
   run2.mac
   energy.mac
+  runMultiple.zsh
   )
 
 foreach(_script ${SCRIPTS})
