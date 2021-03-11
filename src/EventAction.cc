@@ -10,7 +10,7 @@
 
 #include "NumpyAnalysisManager.hh"
 
-EventAction::EventAction() : G4UserEventAction(){}
+EventAction::EventAction() : G4UserEventAction(), fMapSum(){}
 
 EventAction::~EventAction(){}
 
@@ -46,6 +46,8 @@ void EventAction::RecordEvent(const G4Event* event){
             }
         }
     }
+    //currEvtMap.push_back(currEvt);
     Run* run = static_cast<Run*>(G4RunManager::GetRunManager()->GetNonConstCurrentRun());
     run->pushEventBack(fMapSum);
+    run->AddPerEvt(HCE);
 }

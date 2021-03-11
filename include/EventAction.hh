@@ -16,6 +16,7 @@ class EventAction : public G4UserEventAction{
         void RecordEvent(const G4Event*);
     private:
         G4THitsMap<G4double> fMapSum[ndet_Y][ndet_Z][2];
+        //std::vector<G4THitsMap<G4double>[ndet_Y][ndet_Z][2]> currEvtMap;
         G4int fColID[ndet_Y][ndet_Z][2];
 };
 

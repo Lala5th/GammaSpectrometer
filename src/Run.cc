@@ -38,7 +38,17 @@ void Run::Merge(const G4Run* aRun){
     for(auto itr = evtData.begin();itr != evtData.end();itr++){
         pushEventBack(*itr);
     }
+    std::vector<G4double(*)[ndet_Z]> perEvts = run->dumpPerEvts();
+    for(auto evt : perEvts)
+        perEvt.push_back(evt);
+    //for(auto evt : perEvts)
+    //    G4cout << **evt <<G4endl;
     G4Run::Merge(aRun);
+}
+
+std::vector<G4double(*)[ndet_Z]> Run::dumpPerEvts() const{
+    std::vector<G4double(*)[ndet_Z]> copy = perEvt;
+    return copy;
 }
 
 void Run::RecordEvent(const G4Event *event){
@@ -66,27 +76,47 @@ G4double Run::GetTotal(const G4THitsMap<G4double> &map){
     return tot;
 }
 
-G4double Run::GetTotalStd(const std::vector<G4double> &squares,G4double mean, G4int EvtNum){
+std::vector<G4double> Run::GetTotalStd(const std::vector<G4double(*)[ndet_Z]> &perEvt,int i,int j){
     G4double tot = 0.;
-    for (auto& square : squares)
-        tot = square;
-    return tot/EvtNum - pow(mean,2);
+    int evtNum = perEvt.size();
+    double mean = 0;
+    for (auto& evt : perEvt){
+        mean += evt[i][j];
+        //G4cout << evt[i][j] << "\n";
+    }
+    mean /= evtNum;
+    for (auto& evt : perEvt)
+        tot += pow(evt[i][j]-mean,2);
+    //G4cout << perEvt.at(97)[i][j] << "|" << perEvt.at(98)[i][j] << "|" << perEvt.at(99)[i][j] << G4endl;
+    //G4cout << pow(tot/evtNum,0.5) << "|" << mean << G4endl;
+    return {tot/(evtNum-1),mean};
+}
+
+void Run::AddPerEvt(G4HCofThisEvent* HCE){
+    double val[ndet_Y][ndet_Z];
+    G4THitsMap<G4double> mapSum[ndet_Y][ndet_Z][2];
+    for(G4int i = 0; i < ndet_Y; i++){
+        for(G4int f = 0; f < ndet_Z; f++){
+            for(G4int k = 0; k < 2; k++){
+                G4THitsMap<G4double>* evtMap = (G4THitsMap<G4double>*)(HCE->GetHC(fColID[i][f][k]));
+                mapSum[i][f][k] += *evtMap;
+            }
+        }
+    }
+    for(int i = 0; i < ndet_Y;i++){
+        for(int f = 0; f < ndet_Z;f++){
+            val[i][f] = 0;
+            std::map<G4int,G4double*>::iterator itr = mapSum[i][f][0].GetMap()->begin();
+            for(; itr != mapSum[i][f][0].GetMap()->end(); itr++)
+            { val[i][f] += *(itr->second); }
+        }
+    }
+    perEvt.push_back(val);
 }
 
 void Run::pushEventBack(G4THitsMap<G4double> eventMap[ndet_Y][ndet_Z][2]){
     evtMutex.lock();
     eventMaps.push_back(eventMap);
-    double square;
-    for(int i = 0; i < ndet_Y;i++){
-            for(int f = 0; f < ndet_Z;f++){
-                square = 0;
-                std::map<G4int,G4double*>::iterator itr = eventMap[i][f][0].GetMap()->begin();
-                for(; itr != eventMap[i][f][0].GetMap()->end(); itr++)
-                { square += *(itr->second); }
-                square = pow(square,2);
-                squares[i][f].push_back(square);
-        }
-    }
     evtMutex.unlock();
 }
 
