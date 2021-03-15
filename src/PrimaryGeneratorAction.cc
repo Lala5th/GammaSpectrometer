@@ -57,7 +57,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     do{
         do{
             E = G4UniformRand()*1000*MeV;
-            y = G4UniformRand();
+            y = G4UniformRand()*10;
             func_val = func(E);
         }while(y >=func_val);
 
