@@ -39,16 +39,13 @@ void Run::Merge(const G4Run* aRun){
         pushEventBack(*itr);
     }
     std::vector<G4double(*)[ndet_Z]> perEvts = run->dumpPerEvts();
-    for(auto evt : perEvts)
-        perEvt.push_back(evt);
-    //for(auto evt : perEvts)
-    //    G4cout << **evt <<G4endl;
+    for(size_t i = 0;i < perEvts.size();i++)
+        perEvt.push_back(perEvts.at(i));
     G4Run::Merge(aRun);
 }
 
 std::vector<G4double(*)[ndet_Z]> Run::dumpPerEvts() const{
-    std::vector<G4double(*)[ndet_Z]> copy = perEvt;
-    return copy;
+    return perEvt;
 }
 
 void Run::RecordEvent(const G4Event *event){
@@ -100,7 +97,7 @@ void Run::WriteData(NumpyAnalysisManager* man){
 }
 
 void Run::AddPerEvt(G4HCofThisEvent* HCE){
-    double val[ndet_Y][ndet_Z];
+    auto val = new double[ndet_Y][ndet_Z];
     G4THitsMap<G4double> mapSum[ndet_Y][ndet_Z][2];
     for(G4int i = 0; i < ndet_Y; i++){
         for(G4int f = 0; f < ndet_Z; f++){
@@ -118,7 +115,7 @@ void Run::AddPerEvt(G4HCofThisEvent* HCE){
             { val[i][f] += *(itr->second); }
         }
     }
-    perEvt.push_back(val);
+    this->perEvt.push_back(val);
 }
 
 void Run::pushEventBack(G4THitsMap<G4double> eventMap[ndet_Y][ndet_Z][2]){
