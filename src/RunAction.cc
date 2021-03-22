@@ -64,5 +64,6 @@ void RunAction::EndOfRunAction(const G4Run* aRun){
             }
         }
         RunAction::IncrementRun();
+        run->PurgeEvents();
     }
 }

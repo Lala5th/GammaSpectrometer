@@ -25,6 +25,12 @@ Run::Run() : G4Run(){
 
 Run::~Run(){}
 
+void Run::PurgeEvents(){
+    for(size_t i = 0; i < perEvt.size();i++){
+        delete[] perEvt.at(i);
+    }
+}
+
 void Run::Merge(const G4Run* aRun){
     const Run* run = static_cast<const Run*>(aRun);
     for(G4int i = 0; i < ndet_Y; i++){
