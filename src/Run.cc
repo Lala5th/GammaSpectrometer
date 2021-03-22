@@ -92,6 +92,13 @@ std::vector<G4double> Run::GetTotalStd(const std::vector<G4double(*)[ndet_Z]> &p
     return {tot/(evtNum-1),mean};
 }
 
+void Run::WriteData(NumpyAnalysisManager* man){
+    for (size_t id = 0; id<perEvt.size();id++)
+        for(G4int i = 0; i < ndet_Y; i++)
+            for(G4int f = 0; f < ndet_Z; f++)
+                man->AddData<int,float>(4,id,perEvt.at(id)[i][f]/pNum);
+}
+
 void Run::AddPerEvt(G4HCofThisEvent* HCE){
     double val[ndet_Y][ndet_Z];
     G4THitsMap<G4double> mapSum[ndet_Y][ndet_Z][2];

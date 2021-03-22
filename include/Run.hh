@@ -12,6 +12,8 @@
 #include <functional>
 #include <cmath>
 
+#include "NumpyAnalysisManager.hh"
+
 class G4Event;
 class G4HCofThisEvent;
 
@@ -30,6 +32,7 @@ class Run : public G4Run{
         void AddPerEvt(G4HCofThisEvent*);
         static G4double GetTotal(const G4THitsMap<G4double>&);
         static std::vector<G4double> GetTotalStd(const std::vector<G4double(*)[ndet_Z]>&,int,int);
+        void WriteData(NumpyAnalysisManager*);
     private:
         G4THitsMap<G4double> fMapSum[ndet_Y][ndet_Z][2];
         std::vector<G4double(*)[ndet_Z]> perEvt;
