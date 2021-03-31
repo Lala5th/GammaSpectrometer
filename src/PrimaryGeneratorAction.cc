@@ -74,4 +74,5 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
         generatedParticles++;
 
     }while(generatedParticles < pNum);
+    fParticleGun->SetParticleEnergy(ECrit);
 }
