@@ -46,24 +46,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     std::normal_distribution<double> dist(0,this->std);
     man->AddData<double,double>(5,this->std,this->expCorr);
 
-    std::function<double(double)> func = [this,ECrit](double E){
-        return pow(M_E,-E/ECrit)*pow(E,((double) -2)/3 + this->expCorr);
-    };
-
     G4ThreeVector direction = G4ThreeVector(0,0,1);
     fParticleGun->SetParticlePosition((*initPos));
     fParticleGun->SetParticleMomentumDirection(direction);
 
     G4double E;
-    G4double y;
-    double func_val;
     G4int generatedParticles = 0;
     do{
-        do{
-            E = G4UniformRand()*1000*MeV;
-            y = G4UniformRand()*10;
-            func_val = func(E);
-        }while(y >=func_val);
+        E = ECrit;
         E += dist(randGen);
         if(E <= 0)
             continue;
