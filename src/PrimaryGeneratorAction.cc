@@ -59,7 +59,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
             continue;
 
         fParticleGun->SetParticleEnergy(E);
-        man->AddData<int,double>(3,generatedParticles,E);
+        man->AddData<int,float,float>(3,generatedParticles,E,randGen());
         fParticleGun->GeneratePrimaryVertex(anEvent);
         generatedParticles++;
 

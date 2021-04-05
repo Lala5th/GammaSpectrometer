@@ -4,9 +4,9 @@ import numpy as np
 file = open("autogen.mac","w+")
 
 file.write(f"/mangling/setEC 0\n")
-for E in range(10,300,10):
+for E in range(10,300,20):
     file.write(f"/gun/energy {E} MeV\n")
-    for std in range(0,200,10):
+    for std in range(0,200,20):
         file.write(f"/mangling/setStd {std}\n")
         file.write("/run/beamOn 8\n")
 

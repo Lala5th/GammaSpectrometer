@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
     man->CreateDataset<int>("y"); // ID:0
     man->CreateDataset<int>("z"); // 1
     man->CreateDataset<int,float>("DepositedEnergy"); // 2
-    man->CreateDataset<int,double>("Energy"); // 3
+    man->CreateDataset<int,float,float>("Energy"); // 3
     man->CreateDataset<double>("ECrit"); // 4
     man->CreateDataset<double,double>("Mangling"); // 5
 
